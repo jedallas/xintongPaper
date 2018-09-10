@@ -1,0 +1,340 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{An Ensemble Learning Algorithm for Indoor Localization Using Mobile Phone-Based Sensors\\  %Title
+{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+should not be used}
+\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Xintong Wang}
+\IEEEauthorblockA{\textit{Department of Software Engineering} \\
+\textit{Harbin Institute of Technology}\\
+Weihai, China \\
+150730121@stu.hit.edu.cn}
+\and
+\IEEEauthorblockN{2\textsuperscript{th} Yunfei Feng}
+\IEEEauthorblockA{\textit{Sam's Club Technology} \\
+\textit{ Wal-Mart Inc.}\\
+Bentonville, Arkansas, USA \\
+yunfei.feng@samsclub.com}
+}
+
+\maketitle
+
+\begin{abstract}
+Abstract—In this paper we investigate the problem of localizing a smartphone based on readings from iBeacon signal strengths utilizing an ensemble learning algorithm. We build a real-world environment and examine the performance of the ensemble learning algorithm in the positioning system. We have corroborated that the ensemble learning algorithm outperforms other algorithms individually. We also propose 2 approaches resulting in an accuracy increase: one is called Exponentially Weighted Moving Averages for solving the problem of fluctuating and the other is named data argumentation for enlarging datasets. Further, we discuss how density affects the accuracy of localization by using different intervals. Most importantly we deploy this system in real-world environments and demonstrate that these  approaches are appropriate for real-world applications but the problem of overfitting remains outstanding. Furthermore, for handling the overfitting, we proposed data balance for balancing the amount of training datasets in each reference point and of fluctuating and a weighted fusion algorithm to synthesize predictions of multiple datasets for a better performance.
+\end{abstract}
+
+\begin{IEEEkeywords}
+indoor localization, machine learning algorithms, radio map, accuracy
+\end{IEEEkeywords}
+
+\section{Introduction}
+Indoor localization has gained a lot of interest due to its pervasive applications such as security surveillance\cite{b1}, robotics applications\cite{b2}, and path navigation\cite{b3} in places such as shopping malls, airports, and hospitals. As higher accuracy often arises in the situation with more obstacles\cite{b18}, systems in shopping mall, hospital, campus, and office building usually outperform open spacious area. So we will focus on the environments in open spacious area.
+
+Machine learning algorithms have been approved successfully on improving performance and reduce computation time due to its excellent solutions to discover patterns and trends in the data, which is often difficult or impossible for other methods. Supervised learning algorithms for classification are trained on data and ensemble learning algorithms can be used for synthesizing different predictions of each algorithm. As more data for training the algorithm can improve the performance of the whole system, we proposed two approaches to enlarge datasets: one is to solve the problem of fluctuating and find a general pattern, the other is to combine the specific dataset and general dataset into one dataset.
+
+In this study, we cut the whole system into 2 phase: offline phase for training an accurate system, and online phase for testing it in a real-world environment. During the obline phase, We present an approach to balance data, which have significant effects on the problem of overfitting. And a weighted fusion algorithm to determine our predictions comprehensively resulting in an accurate performance: 96 percent accuracy.
+
+The paper is organized as follows. In Section II, we examine other indoor localization systems and some machine learning algorithms used for indoor localization. In Section III, we describe our data collection and data reprocessing  process, the testing environment, and our system. Section IV presents the results of our analysis in different environments and test this system in the real-world environment. This section also proposed 2 approaches to solve the problem of overfitting. Finally, the paper concludes with a discussion of future directions for research in Section V.
+
+\section{RELATED WORK}
+With a number of indoor positioning systems being proposed, researchers have found that a disadvantage standing outstanding and emergent among these systems which basically use the technologies of ultrasound\cite{b4} and RFID \cite{b5} is that multiple kinds of sensors and infrastructures need to be deployed. Then researchers have made efforts to lessen the recline on infrastructures or utilize general devices such as visible lights\cite{b6}. Bluetooth\cite{b7}, \cite{b8} and WiFi\cite{b9}, \cite{b10} have made great success. These systems using indoor wireless communication technology to communicate can be divided into three categories: those using a fingerprinting aproach \cite{b11}, \cite{b12}, those using formula to calculate device’s distances and the triangulation algorithm to determine the location and those using the proximity relationship between the target place and access points. With a large number of smartphones available everywhere these days, iBeacon, which is a new technology based on BLE (Bluetooth Low Energy)that has been built into most of operating systems such as Android and IOS. BLE is excellent at saving battery for both sensors and smartphones and easy to deploy in real-world applications.
+
+Machine learning algorithms have been utilized into the field of indoor localization due to its high accuracy and short computation time. K-Nearest Neighbor algorithm has been revealed as the most suitable model during positioning\cite{b13}. An improved precision yielded by the model in conjunction with support vector machine, ensemble SVR, and artificial neural network has been demonstrated, as compared to an independent model\cite{b14}. The results show that the performance of K-Nearest Neighbors, decision tree and SVM outperforms other indoor localization methods both in computation time and precision\cite{b15}. Also, the combination of K*algorithm\cite{b16} and RBF Regression is demonstrated as the most accurate model among 20 machine learning algorithms\cite{b17}. However, few researchers use an ensemble learning algorithm for estimating, which is a kind of machine learning algorithm using multiple learning algorithms to obtain better performance.
+
+Traditional fingerprinting approach which we will utilize in this paper can be divided into two phases: offline phase and online phase. During the offline phase, the location and respective iBeacon signal strengths from access points are collected. During the online phase, a location positioning technique uses the currently observed signal strengths and previously collected information to figure out an estimated location. 
+
+In this paper, we expand on the fingerprinting approach described above. After collection, we use 2 approaches to process data for further training our system. During the online phase, we test this system in real-world use and proposed 2 approaches to handle the downside found in online phase. The system built for an algorithm can be easily implemented as part of an application and installed for localization on the device itself.
+\section{METHODOLOGY}
+The localization process consists of three phases: data collection, processing and analysis. Prior to collecting data, some deployments were necessary to arrange, such as predefined preference testing points and the iBeacon base station.
+As magnetic fields signals would not remain constant, so we don't take them into consideration. After deployment and collection, some approaches were utilized for processing, such as EWMA and data augmentation. Then, we applied machine learning algorithms for classifications.
+
+\subsection{Exponentially Weighted Moving Averages}
+A sophisticated optimization algorithm called exponentially weighted averages can be used, which is also called exponentially weighted moving averages (EWMA) in statistics or exponential smoothing \cite{b18}.
+\begin{equation}
+S_t=\left\{
+                \begin{array}{lrl}
+                Y_t & & {t=1}\\
+                \alpha {Y_t} + (1 - \alpha ){S_{t - 1}}& & {t>1}
+                \end{array}
+\right.
+\end{equation}
+
+We can eventually get $S_t$ as a weighted sum of the datum points $Y_t$ as:
+\begin{align}
+  {S_t}  &=\alpha {Y_t} + (1 - \alpha ){S_{t - 1}}       \\
+             &= (1 - \alpha )((1 - \alpha ){S_{t - 2}} + \alpha {Y_{t - 1}}) + \alpha {Y_t} \\
+             &= \sum\limits_{m = 0}^\infty  {\alpha {{\left( {1 - \alpha } \right)}^m}{Y_{n - m}}}
+\end{align}
+
+Initialize $Y_1$ the first value in the a series of signal strengths and then, on every record of sampling, average it with a weight of $\alpha$ times whatever appears as previous value and plus 1-$\alpha$ times new signal record. Also, the parameter $\alpha$ indicates how many last records took into consideration for calculating a weighted average.
+
+Take a series of signals received by a device in Fig1 for example. This raw data fluctuates and looks noisy so if you want to compute the trends and get a much smoother curve, EWMA is an appropriate approach.
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.4]{fig1.png}
+\caption{EWMA processing.}
+\label{fig}
+\end{figure}
+\subsection{Data Collection}
+The data collection phase consists of a variety of placement way of devices in the building, taking readings of the iBeacon signal strengths and transmitting data from the sensors to a server. The data is associated with a user-predefined location and written to a text file on the server, which can be later for processing and analysis.
+
+Each record consists of 6 attributes. We took into account a time record, a Mac address, a signal strength from one prepared iBeacon access point and a location id. The number of iBeacon signal strengths to account for will vary depending on the deployment of experimental environments.
+
+We divided the Lab 1 and Lab 2 which is about 14 meters wide by 18 meters long into 12 predefined reference points. The map of the lab can be seen in Figure 2. In Lab 1, 23 iBeacon devices have been deployed to the receiving iBeacon signal strengths. After receiving, data from all the iBeacon devices were transmitted to a server and written to a text file for further processing. When date was processed, a receiving interval can be adjusted for creating different radio maps in experiments. In this experiment, we used 100 ms and 600 ms for receiving interval. In Lab 2, however, this time we only utilized 9 iBeacon devices without other changes. The map of Lab 2 can be seen in Figure 3. In Lab 3, 92 iBeacon devices have been deployed and receiving interval for 31 positioning points was set at 600 ms and 900 ms. The map of Lab 2 can be seen in Figure4, which is about 50 meters wide by 36 meters long.
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.8]{fig2.png}
+\caption{Map of Lab 1.}
+\label{fig}
+\end{figure}
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.8]{fig3.png}
+\caption{Map of Lab 2.}
+\label{fig}
+\end{figure}
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.8]{fig4.png}
+\caption{Map of Lab 3.}
+\label{fig}
+\end{figure}
+\subsection{System}
+After collection, we transition into a preprocessing and offline analysis phase in which various machine learning algorithms are trained and their errors measured. Due to the computation time and positioning accuracy of machine learning algorithms, many researchers abandoned traditional algotrithms and began to have comparative studies on machine learning algorithms for indoor positioning. As few researchers utilize an ensemble learning algorithm, which usually outperforms each algorithm, we will utilize an ensemble learning algorithm to estimate predefined positioning points in conjunction of 9 learning algorithms in this paper.
+
+The final phase is an online analysis, in which the ensemble learning algorithm will be tested in real-world applications. In a real-world indoor localization system, the smartphone can receive iBeacon Signal Strength values from different iBeacon devices and utilize preprocessed radio map database to predict a position.
+
+\subsection{Dataset}
+Raw data is an unprocessed dataset which consists of iBeacon received signal strengths within a predefined time period. Average-$\alpha$ is a dataset optimized by EWMA using the corresponding Raw dataset to discover a general pattern and trend in this data, and $\alpha$ is a parameter in EWMA approach can be set as 0.5, 0.7 and 0.9 in lab 1,2 and 0.7, 0.9, 0.95, 0.97 and 0.99 in lab 3. Ensemble-$\alpha$ is a dataset consisting of Average-$\alpha$ dataset and corresponding Raw dataset, which is an approach for data augmentation.
+
+\section{RESULTS}
+Our analysis has two different phases: offline and online. The offline analysis presents the performance of each algorithm alone and the ensemble learning algorithm in predicting a position on the different dataset. While the online analysis will utilize the model trained in offline phase and take track of user's real-time iBeacon signal strengths and predict user's location.
+\subsection{Offline}
+We examined the performance of 9 machine learning algorithms and the ensemble learning algorithm on our dataset using cross-validation. Table I shows the results, giving the best accuracy for each algorithm and ensemble algorithm. The algorithm which performed best on our dataset was the ensemble learning algorithm, with a high accuracy of 0.9410. Although the performance of each algorithm is not accurate enough respectively, the ensemble algorithm shows an amazing performance.
+
+\begin{table}[htbp]
+\caption{ACCURACY IN POSITIONING SYSTEM ON A TESTING DATASET}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Algorithm& Accuracy\\
+\hline
+K-Nearest Neighbor&	0.2214\\
+Linear SVM	&0.1432\\
+RBF SVM,	&0.1134\\
+Decision Tree	&0.2297\\
+Random Forest	&0.3174\\
+Neural Networks	&0.2471\\
+AdaBoost	&0.4304\\
+Naive Bayes	&0.1605\\
+Quadratic Discriminant Analysis	&0.2152\\
+Ensemble learning	  &0.9410\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+We not only tested whether the ensemble learning algorithm outperforms than the other algorithms alone but also were also curious about whether the performance of ensemble dataset could outperform than raw dataset and average dataset as more data is used for training and whether each dataset processed by EWMA have a better performance than the corresponding raw dataset.
+
+Table II shows the results in lab 1, while the results for lab 2 can be seen in Table III. A comparison of the six most accurate performances is illustrated in Figure 5. The dataset recorded within a time period of 600 ms performs much denser than recorded within 100 ms.
+\begin{table}[htbp]
+\caption{ACCURACY IN POSITIONING SYSTEM ON A TESTING DATASET}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Model(23)& 100 ms interval& 600 ms interval\\
+\hline
+Raw data&	0.5549,4.1494m&	0.9215,0.5656\\
+Average-0.5	&0.5702,3.9231m&	0.9472,0.4425m\\
+Average-0.7&	0.5891,3.8544m&	0.9572,0.3485m\\
+Average-0.9&	0.6298,3.4800m&	0.9258,0.5803m\\
+Ensemble-0.5&	0.8851,1.0345m&	0.9458,0.4329m\\
+Ensemble-0.7&	0.9410,0.5672m&	0.9515,0.3771m\\
+Ensemble-0.9&	0.8755,1.1638m&	0.9344,0.5303m\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{ ACCURACY IN POSITIONING SYSTEM ON EXPERIMENT 1 ROUND 2 DATASET}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Model(9)& 100 ms interval& 600 ms interval\\
+\hline
+Raw data	&0.5650,4.0060m	&0.7017,2.5689m\\
+Average0.5	&0.6311,3.1527m	&0.8127,1.6291m\\
+Average0.7	&0.7853,1.8325m	&0.8357,1.3929m\\
+Average0.9	&0.9005,0.8308m	&0.8617,1.1693m\\
+Ensemble0.5	&0.7478,2.2847m	&0.8920,0.9217m\\
+Ensemble0.7	&0.7709,1.9534m	&0.8703,1.0345m\\
+Ensemble0.9	&0.7988,1.7851m	&0.8739,0.9828m\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+The dataset using EWMA approach and data augmentation results in slightly increased accuracy for data recorded within 600 ms interval and significantly increased accuracy for data recorded within 100 ms. According to the significant improvement in comparing the performance of 100 ms dataset and 600 ms dataset, this slight improvement leads us to believe that the denser dataset results in a better performance. In lab 3, we will test 900 ms for comparison. These results indicate that our method of using average dataset and ensemble dataset is meaningfully utilized in real-world applications. Also, the truth that lab 1 using 23 iBeacon devices outperform than lab 2 using 9 iBeacon devices may corroborate that more iBeacon devices for deployment in positioning system can enhance the accuracy. In lab 3, we will deploy 92 iBeacon devices for testing.
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.5]{fig5.png}
+\caption{CDF comparison of 6 excellent models.}
+\label{fig}
+\end{figure}
+
+Fig5 shows the Cumulative Distribution Function (CDF) of localization distance errors of the six systems from which we can see that “23 iBeacon 600 interval average 0.7” significantly outperforms the other schemes. The 95 percentile errors of the best three systems are within 0m, 0.5m, and 1.5m respectively. The experimental results demonstrate that the best system can restrict the majority of errors into an acceptable range.
+
+\begin{table}[htbp]
+\caption{ ACCURACY IN POSITIONING SYSTEM ON EXPERIMENT 2  DATASET}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Model(92)& 600 ms interval& 900 ms interval\\
+\hline
+Raw data&	0.9383,0.4631m&	0.9389,0.4582m\\
+Average0.7&	0.9395,0.4544m&	0.9961,0.0291m\\
+Average0.9&	0.9423,0.4333m&	0.9992,0.0056m\\
+Average0.95&	0.9706,0.2201m&	0.9992,0.0057m\\
+Average0.97&	0.9683,0.2380m&	0.9992,0.0055m\\
+Average0.99	&0.9631,0.2771m&	0.9961,0.0294m\\
+Ensemble0.7&	0.9369,0.4746m&	0.9389,0.4587m\\
+Ensemble0.9&	0.9375,0.4703m&	0.9382,0.4700m\\
+Ensemble0.95&	0.9510,0.3681m&	0.9447,0.4202m\\
+Ensemble0.97&	0.9478,0.3928m&	0.9482,0.3941m\\
+Ensemble0.99&	0.9475,0.3946m&	0.9505,0.3779m\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+Table IV shows the results in lab 3. Unlike the other experiments, the average datasets outperform corresponding ensemble datasets. Although amazing high accuracy has been achieved by average datasets, ensemble datasets still perform an excellent matching between the newly observed signal strengths and existing signal strengths and show good robustness which average datasets sometimes can’t show. Also, the results in this table corroborate that (1) a denser dataset is likely to have a more accurate performance, as the comparison of 100 ms interval, 600 ms interval, and 900 ms interval. (2) using average dataset and ensemble dataset to enlarge the amount of data for training is a useful and effective approach.
+\subsection{Online}
+In the online phase, we trained the ensemble learning algorithm for the best performance on different datasets and saved it. In Online phase, we collected user’s real-time data and processed it. After preprocessing, the system which has been trained in offline phase can be utilized to predict user’s location.
+ 
+Technologies such as target locating, security surveillance, path prediction and heat map analysis can be achieved through indoor positioning system. When it comes to real-world and real-time utilization, industrial utilization has been achieved in the areas of a shopping mall, factory, parking, and warehouse. However, there are still many problems faced by both the areas of industry and academia.
+\subsubsection{Device sustainability}
+In real-world industrial environments, iBeacon devices may suffer from different outside accidents. For example, someone may take one of the iBeacon devices away and put it somewhere or an iBeacon device suddenly broken without receiving any signal strengths for some reason. All these accidents lead to this device‘s not receiving signal strengths as usual or receiving signal strengths distinguishing from the past.
+
+Table V shows the results after dropping the corresponding signal strengths received by the iBeacon device in abnormal conditions. While the results after keeping signal strengths can be seen in Table III. Comparing the performance of Table V and Table III, the first shows a much better performance than the second within 100 ms interval and almost the same performance within 600 ms interval. That is to say, when iBeacon devices cannot receive signal strengths (Broken) or display significant differences between observed values and existing values in the radio map which is established as the predicted positioning points (Taken), the system must detect it utilizing some mechanisms and drop these iBeacon devices.
+
+\begin{table}[htbp]
+\caption{ ACCURACY IN POSITIONING SYSTEM ON EXPERIMENT 1 ROUND 2 DROP 1 DATASET}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Model(8)& 600 ms interval& 900 ms interval\\
+\hline
+Raw data&	0.6707,2.9853m&	0.7017,2.5689m\\
+Average0.5&	0.7529,2.0799m&	0.8127,1.6291m\\
+Average0.7&	0.8143,1.5264m&	0.8357,1.3929m\\
+Average0.9&	0.9174,0.6788m&	0.8617,1.1693m\\
+Ensemble0.5&	0.8360,1.4041m&	0.8920,0.9217m\\
+Ensemble0.7&	0.8074,1.6885m&	0.8703,1.0345m\\
+Ensemble0.9&	0.8234,1.5190m&	0.8739,0.9828m\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+\subsubsection{Overfitting}
+ For explaining overfitting, lab 4 employed with 109 iBeacon devices has been tested in 4969 Club. The results in Table V shows that the system which usually has an excellent performance on the training data can not also perform extraordinary on the testing data due to overfitting. The ensemble dataset which can reach 99.6 percent accuracy on the training data but 78.6 percent on the testing data is not a functional system in real-world applications. Faced with its low accuracy, we proposed two approaches, one is called data balance, the other is data argumentation. The aim of balancing data is to equal the amount of data on each reference point by randomly cutting the amount of each dataset down to a minimum determined by the smallest amount. Balancing data is an excellent approach for diminishing training preference caused by different amount of the data. As you can see from Table V, the best ensemble balance system outperforms corresponding traditional ensemble system with 86.6 percent accuracy. However, that is still not accurate enough for real-world use.
+ Considering that after cutting down the amount, there is not much data for building an accurate system because less data usually leads to lower accuracy. We used the approach of data argumentation utilized previously for generating more data. In this experiment, we used raw data, average 0.7 and 0.9 for synthesizing. Eventually, the performance of 95.5 percent accuracy and 0.5558 m average error distance has been achieved using these two approaches.
+
+\begin{table}[htbp]
+\caption{ ACCURACY IN POSITIONING SYSTEM ON EXPERIMENT 2  ROUND 2 DATASET}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Model(109)& Accuracy	&Average Error Distance(m)\\
+\hline
+100ms&	11.53\%	&16.5489\\
+100ms[Balance]&	29.18\%	&12.3396\\
+100ms[Average0.7]&	12.44\%	&15.7700\\
+Average0.7[Balance]&	26.84\%	&12.7915\\
+Ensemble&	19.82\%	&15.5851\\
+Ensemble[Balance]&	57.32\%	&7.8511\\
+600ms&	30.07\%	&9.1704\\
+600ms[Balance]&	46.26\%	&7.2193\\
+600ms[Average0.7]&	27.92\%	&10.0704\\
+Average0.7[Balance]&	42.61\%	&7.9747\\
+Ensemble&	80.15\%	&2.7173\\
+Ensemble[Balance]&	86.18\%  &1.8908\\
+900ms&	28.70\%	&9.9972\\
+900ms[Balance]&	39.90\%	&7.9225\\
+900ms[Average0.7]&	27.96\%	&9.6679\\
+Average0.7[Balance]&	40.66\%	&8.2185\\
+Ensemble&	78.36\%	&2.8189\\
+Ensemble[Balance]&	86.57\%	&1.8689\\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+\begin{figure}[thpb]
+\centering
+%\centerline{\includegraphics{fig2.png}}
+\includegraphics[scale=0.5]{fig6.png}
+\caption{Confusion matrix of the best system.}
+\label{fig}
+\end{figure}
+ 
+We discovered that 3, which means 3 error detection of prediction in the confusion matrix, indicated that the same record in both raw dataset and 2 transformation datasets was predicted improperly. To this degree, it is fairly hard to make an accurate prediction using data argumentation. But we can further improve our system by using a weighted fusion algorithm: we consider the final prediction by using its respective weights times its corresponding results of the same record in different datasets. For example, if the same record is predicted improperly in at least 2 datasets among raw dataset and 2 transformation datasets, we recognized it as a false detection. In this way, a more accurate performance has been achieved: 96.5 percent accuracy. Also, different weights can be modified for raw dataset detection and 2 transformation datasets to build a better system using some approaches to learn such as gradient descent optimization.
+
+\section{CONCLUSIONS AND FUTURE WORK}
+In this work, we have tested 9 machine learning algorithms and an ensemble learning algorithm for indoor localization based on the iBeacon devices already deployed in experiments and smartphone available for receiving signal strengths. We have found that the ensemble algorithm outperforms other algorithms alone in a real-world environment. Besides, we also found that more iBeacon devices can be applied to have a more accurate detection without any changes to infrastructure.
+
+How we adjust the receiving interval as a predefined time period makes a significant influence on the accuracy of our system. We found that a longer interval could lead to a more accurate system due to the density of a dataset. The results also corroborated that the average dataset and ensemble dataset show better performances due to the approach of EWMA and data augmentation. In this system, offline and online phases have been split for distinct missions. We also tested our system in real-world use and proposed 2 approaches to solve the problem of overfitting.
+
+In the future, we will explore using multiple devices to collect and evaluate systems. As different devices could receive different signal strengths from each predefined reference point at various locations. A system built from one kind of devices may not accurately make predictions for another device’s location. For example, we could take Bluetooth devices or ZigBee technique into consideration.
+We also intend to look into and explore how the density of our collecting dataset could influence the performance of the system. We will try a longer interval and test its performance. We will utilize more approaches for processing our data, not only EWMA and data augmentation. Futhermore, we will build a complete system providing more techniques such as path prediction and heat map analysis using positioning system and face recognition.
+
+\section*{}
+\begin{thebibliography}{00}
+\bibitem{b1} Monroe D A. Network communication techniques for security surveillance and safety system: US, US 6392692 B1[P]. 2002.
+\bibitem{b2} Sohn B, Lee J, Chae H, et al. Localization system for mobile robot using wireless communication with IR landmark[C]// International Conference on Robot Communication and Coordination. IEEE Press, 2007:6.
+\bibitem{b3} Stook J. Planning an indoor navigation service for a smartphone with Wi-Fi fingerprinting localization[J]. Otb Research Institute for the Built Environment, 2011.
+\bibitem{b4} N. B. Priyantha, A. Chakraborty and H. Balakrishnan, “The Cricket Location-Support System,” Proceedings of MobiCom 2000, Boston, 6-10 August 2000, pp. 32-43.
+\bibitem{b5} Hahnel D, Burgard W, Fox D, et al. Mapping and localization with RFID technology[C]// IEEE International Conference on Robotics and Automation, 2004. Proceedings. ICRA. IEEE, 2004:1015-1020.
+\bibitem{b6} Kavehrad M, Deng P. Indoor positioning algorithm using light-emitting diode visible light communications[J]. Optical Engineering, 2012, 51(8):5009.
+\bibitem{b7} Aalto L, Korhonen J, Ojala T. Bluetooth and WAP push based location-aware mobile advertising system[C]// International Conference on Mobile Systems, Applications, and Services. DBLP, 2004:49-58.
+\bibitem{b8} Bruno R, Delmastro F. Design and Analysis of a Bluetooth-Based Indoor Localization System[C]// Personal Wireless Communications, Ifip-Tc6, International Conference, Pwc 2003, Venice, Italy, September 23-25, 2003, Proceedings. DBLP, 2003:711-725.
+\bibitem{b9} Paul A S, Wan E A. Wi-Fi based indoor localization and tracking using sigma-point Kalman filtering methods[C]// Position, Location and Navigation Symposium, 2008 IEEE/ION. IEEE, 2008:646-659.
+\bibitem{b10} Goswami A, Ortiz L E, Das S R. WiGEM:a learning-based approach for indoor localization[C]// Conference on Emerging NETWORKING Experiments and Technologies. ACM, 2011:1-12.
+\bibitem{b11} Kaemarungsi K, Krishnamurthy P. Modeling of indoor positioning systems based on location fingerprinting[C]// Joint Conference of the IEEE Computer and Communications Societies. IEEE, 2004:1012-1022 vol.2.
+\bibitem{b12} Zhao, K.; Li, B.; Andrew, D.; Chen, L. A Comparison of algorithms adopted in fingerprinting indoor positioning systems. In Proceedings of the International Global Navigation Satellite Systems Society IGNSS Symposium, Outrigger Gold Coast, Australia, 16–18 July 2013.
+\bibitem{b13} Bozkurt S, Elibol G, Gunal S, et al. A comparative study on machine learning algorithms for indoor positioning[C]// International Symposium on Innovations in Intelligent Systems and Applications. IEEE, 2015:1-8.
+\bibitem{b14} Cheng Y K, Chou H J, Chang R Y. Machine-Learning Indoor Localization with Access Point Selection and Signal Strength Reconstruction[C]// IEEE, Vehicular Technology Conference. IEEE, 2016:1-5.
+\bibitem{b15} Salamah A H, Tamazin M, Sharkas M A, et al. An enhanced WiFi indoor localization system based on machine learning[C]// International Conference on Indoor Positioning and Indoor Navigation. IEEE, 2016.
+\bibitem{b16} Cleary J G, Trigg L E. K * : An Instance-based Learner Using an Entropic Distance Measure[J]. Machine Learning Proceedings, 1995:108-114.
+\bibitem{b17} Mascharka D, Manley E. Machine Learning for Indoor Localization Using Mobile Phone-Based Sensors[J]. Computer Science, 2015.
+\bibitem{b18} Everett J E. The exponentially weighted moving average applied to the control and monitoring of varying sample sizes[J]. Wit Transactions on Modelling and Simulation, 2011, 51:3-13.
+\bibitem{b19} Lin T H, Ng I H, Lau S Y, et al. A Microscopic Examination of an RSSI-Signature-Based Indoor Localization System[J]. 2008.
+    
+\end{thebibliography}
+\vspace{12pt}
+\color{red}
+IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+%\bibliographystyle{IEEEtran}      %IEEEtran为给定模板格式定义文件名
+%\bibliography{ref}                        %ref 为.bib文件名
+\end{document}
