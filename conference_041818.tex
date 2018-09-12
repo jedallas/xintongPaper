@@ -45,7 +45,7 @@ By a series of comprehensive experiments, We have corroborated that the weighted
 \end{abstract}
 
 \begin{IEEEkeywords}
-Indoor localization, machine learning, radio map, iBeacon-based
+Indoor localization, machine learning, ensemble learning, iBeacon
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -98,7 +98,7 @@ In this paper, we mainly focus on applying an ensemble algorithm on the RSSI fin
 \section{METHODOLOGY}
 The localization process consists of three phases: data collection, processing
 and analysis. Prior to collecting data, some deployments are certainly
-necessary, such as predefining testing points and deploying the iBeacon devices.??????????????????? (what is a base station)%base station 基站 -》 devices
+necessary, such as predefining testing points and deploying the iBeacon devices.
 As magnetic fields signals would not remain constant, we don't take them into consideration. After deployment and collection, some approaches are utilized for processing, such as EWMA and data augmentation. In the end, machine learning algorithms for classifications are applied.
 
 \subsection{Exponentially Weighted Moving Averages}
@@ -123,7 +123,7 @@ where it eventually gets $S_t$ as a weighted sum of the temporal data points $Y_
 Initializing $Y_1$ as the first value in a series of signal strengths and then, on every record of sampling, it gets a averaging process with a weight of $\alpha$ times appearing as the previous value, and involves 1-$\alpha$ times the new signal strength. Here the parameter $\alpha$ indicates the total number of last involved records to calculate a weighted average.
 
 Fig.\ref{fig:1} shows an excerpt of signal strengths received by an Android App, \textit{iBeacon signal collector}.
-In order to compute the trend on the drastically fluctuating raw data, EWMA is adopted to obtain a much smoother curve, which can be used for amending the fluctuating and finding a hidden pattern.
+In order to compute the trend on the drastically fluctuating raw data, EWMA is adopted to obtain a much smoother curve by amending the fluctuating and finding a hidden pattern.
 signals and discover a hidden pattern,
 \begin{figure}[thpb]
 \centering
@@ -134,9 +134,10 @@ signals and discover a hidden pattern,
 \end{figure} %纵坐标应该是RSSI， not fingerprinting
 
 \subsection{Experiment Design and Data Collection}
-Our first study case took place in a spacious lab with 14 meter wide and 18 meter long. %an->a
+Our first study case took place in a spacious lab with 14 meter wide and 18 meter long.
 Totally, 12 testing points were predefined in the lab.
-Two rounds of experiments were conducted in the lab, which had 23 iBeacon devices and 9 iBeacon devices, respectively. The layout of lab and distribution of multiple iBeacon devices are shown in Fig.\ref{fig:2} and Fig.\ref{fig:3}.
+Two rounds of experiments were conducted in the lab, which had 23 iBeacon devices and 9 iBeacon devices, respectively
+. The layout of lab and distribution of multiple iBeacon devices are shown in Fig.\ref{fig:2} and Fig.\ref{fig:3}.
 The height of each iBeacon is marked in figures.
 The label by each iBeacon represents the Minor value and two rightmost digits of BSSID (MAC address).
 Each iBeacon advertises in 100 ms interval.
@@ -191,9 +192,9 @@ While the online analysis will utilize the model trained in offline phase to
 keep track of a user's real-time iBeacon fingerprints and predict his/her location.
 
 \subsection{Offline Phase}
-We examined the performances of 9 machine learning algorithms perspectively and the ensemble learning algorithm on our dataset using 10-fold cross-validation in the metrics of accuracy.
+We examined the performances of 9 machine learning algorithms perspectively and the ensemble learning algorithm on our dataset using 10-fold cross-validation in the metrics of accuracy. Here, the whole training dataset was evaluated as a test dataset.
 Table \ref{tab:1} manifests the accuracy for each algorithm and that of the ensemble algorithm.
-Here the ensemble learning algorithm achieved a significantly high accuracy of 94.10\%.
+Here the ensemble learning algorithm managed to achieve a high accuracy of 94.10\%.
 Although none of the solo algorithms performed well enough, the ensemble algorithm produced an amazing outcome.
 
 \begin{table}[htbp]
@@ -281,7 +282,6 @@ a Cumulative Distribution Function (CDF) diagram Fig.\ref{fig:5}.
 \caption{CDF comparison of 6 excellent models.}
 \label{fig:5}
 \end{figure}
-% 横坐标是Error distance. 纵坐标是Accuracy。你要把工作做细，别捉急。概念要清晰。 (已改）
 
 Note that the datasets recorded within a 600 ms interval generally perform much
 better than recorded within 100 ms, because a fingerprint in 600 ms has more
@@ -289,7 +289,7 @@ information of more involved iBeacon devices.
 Obviously the experiment of "23 iBeacon 600 interval average 0.7" significantly outperforms the other schemes.
 These results indicate that our method of using average dataset and ensemble
 dataset is able to utilize in a real-world scenario.
-Surprisingly, the 95\% errors of the three best systems are within 0m, 0m, and 0.5m respectively.
+Surprisingly, the 95\% errors of the three best systems are within close to 0m, 0m, and 0.5m respectively.
 It demonstrates that the best system is able to limit the majority of errors into an acceptable range.
 Meanwhile, those sessions with 23 iBeacon devices in experiment 1 primarily surpasses than those with 9 iBeacon devices in experiment 2.
 
@@ -322,15 +322,15 @@ Ensemble0.99 & 94.75\%, 0.3946m & 95.05\%, 0.3779m\\
 \end{center}
 \end{table}
 
-In experiment 3, we deployed 92 iBeacon devices in a real spacious supermarket.
-Average-$\alpha$ ????????? was set as 600 ms and 900 ms for two round of analyses. Table\ref{tab:4} shows the results.
-%应该是interval was set as 600 ms and 900 ms     Average-$\alpha$  里面$\alpha$  是0.7 0.9 0.95 ....
+In experiment 3, we deployed 92 iBeacon devices in a real spacious supermarket. Various
+Average-$\alpha$ values with 600 ms and 900 ms intervals were analyzed. Table\ref{tab:4} shows the results.
 
-Unlike the previous experiments, the average datasets outperform corresponding ensemble datasets.
+Unlike the previous experiments, the average datasets outperform their corresponding ensemble datasets.
 Although amazing high accuracy has been achieved by those average datasets,
-ensemble datasets still perform an excellent matching between the newly observed
-fingerprints and existing fingerprints. ??????????
-% observed signal strengths and existing signal strengths. Besides, ensemble datasets can alleviate the overfittings significantly which is discussed later in the online phase subsection.
+ensemble datasets still perform an excellent matching rate between the newly observed
+fingerprints and existing fingerprints.
+% observed signal strengths and existing signal strengths.
+So to speak, ensemble datasets is able to further alleviate the overfittings compared with those average datasets.
 
 
 %and show good robustness which average datasets sometimes can’t show.  ?????? 鲁棒性-> ensemble有效减少了overfittings
@@ -355,8 +355,9 @@ occasions, such as shopping malls, factories, warehouses, parking lots, etc.
 \subsubsection{Device sustainability}
 In a real environment, iBeacon devices may suffer from many interferences. For
 example, someone may take one of the iBeacon devices away, replace it
-somewhere, or an iBeacon device suddenly turns defunct for some reason so that it doesn't broadcast any signal.
+somewhere, or an iBeacon device suddenly turns defunct for some reason (might be broken or out of electricity,) so that it doesn't broadcast any signal.
 All these factors lead to an inconsistent RSSI environment from the past.
+The system should provide some mechanisms to detect those abnormal iBeacons and some actions should be taken.
 
 While the results after keeping signal strengths can be seen in Table\ref{tab:3}.
 Table\ref{tab:3} in experiment 2 shows the result with 9 iBeacon devices.
@@ -365,18 +366,8 @@ scenario in experiment 2, and Table \ref{tab:5} shows the result.
 Comparing the two tables with the same 600 ms interval, the scenario of 8
 iBeacon devices has a visible performance loss.
 
-That is to say, when iBeacon devices cannot receive signal strengths (Broken) or
-display significant differences between observed values and existing values in
-the radio map which has been established before (Taken),
-the system must detect it utilizing some mechanisms such as classifies based on machine learning and drop these iBeacon
-devices. ?????????????????????????? not clear what u r saying. too long sentence.
-
-%ibeacon 坏了就收不到(broken)  被小孩子拿到别的地方收到的信息就和之前数据库里面的信息不匹配 （taken)
-%所以我们需要某种机制可以distinguish这个ibeacon是不是不正常 然后去除它（之前讨论了去除异常的ibeacon精度提高）
-%That is to say, when iBeacon devices cannot receive signal strengths (Broken)
 \begin{table}[htbp]
-\caption{ACCURACY OF POSITIONING SYSTEM IN EXPERIMENT 2 WITH AN IBEACON LOST}
-%  what is 900ms explaining???????????????????  %100ms 和 600ms  已修正
+\caption{ACCURACY OF POSITIONING SYSTEM IN EXPERIMENT 2 WITH AN IBEACON LOST. ??????????????????????????? 和table3数据重复，而且怎么可能性能有提高????????}
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
@@ -397,7 +388,7 @@ Ensemble0.9&	82.34\%, 1.5190m&	87.39\%, 0.9828m\\
 
 \subsection{Overfitting Issue}
 Unfortunately but not surprisingly, overfitting happened in our system. The experiment 3 tested in a real supermarket where 109 iBeacon devices were deploy.
-The system usually has an excellent performance when evaluating on the entire training data, however it can not perform extraordinary when evaluating on the testing data.
+The system usually has an excellent performance when evaluating on the entire training dataset, however it can not perform extraordinary when evaluating on a training dataset and a test dataset splitted from a whole dataset.
 %The ensemble dataset which can reach 99.6 percent accuracy on the training data but 78.6 percent on the testing data is not a functional system in real-world applications.
 %Faced with its low accuracy,
 Accordingly, we proposed two approaches to fight against overfitting, data balance and data augmentation.
@@ -459,15 +450,13 @@ another four types of notations in the matrix.
 "1" means there are some misclassifications in the original raw dataset;
 "2" means there are some misclassifications in either the averaging dataset or ensembling dataset;
 "3" means there are some misclassifications in both the original raw dataset and the two transformed dataset.
-That is to say, the instance with a notation "3" is hard to make an accurate prediction using data augmentation.
+That is to say, the instance with a notation "3" is hard to make an accurate prediction using data augmentation. (?????????? %我解释的对吗?）
 
 One step further, we tried to improve by a weighted fusion algorithm:
-we consider the final prediction by using its respective weights multiplies its
-corresponding results of the same record in different datasets. (??? meaning? %每个dataset（raw或者transformed)赋予
-%不同的权重 共同决定同一条记录是否predict错误  比如w1=0.6 w2=0.3 w3=0.1  低于0.9则正确 如果prediction是（1，0,0）则 ....这样的
+The final prediction is decided by a list of weights multiplies the probabilities associated with different datasets.
 For example, if the same record is predicted improperly in at least 2 datasets
 among raw dataset and 2 transformation datasets, we recognized it as a false
-detection. In the meantime, we considered one misclassification as a true detection. (so what shall we do next? %in the meantime,..........解释)
+detection. In the meantime, we considered one misclassification as a true detection. (?????????????? %没明白你的算法)
 In this way, a more accurate performance has been achieved: 96.5\%.
 Moreover, gradient descent optimization is able to modify different weights to
 achieve a better accuracy rate.
